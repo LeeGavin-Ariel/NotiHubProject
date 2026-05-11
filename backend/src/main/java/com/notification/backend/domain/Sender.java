@@ -22,6 +22,9 @@ public class Sender {
     @Column(nullable = false, unique = true)
     private String apiKey;
 
+    @Column
+    private String slackBotToken;    // 추가
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
