@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -16,6 +17,7 @@ public class NotificationConsumer {
     private final NotificationRouter notificationRouter;
 
     // notification.request 토픽을 구독하는 리스너
+    @Transactional
     @KafkaListener(topics = "notification.request", groupId = "notification-group")
     public void consume(Long requestId) {
         log.info("[Consumer] 메시지 수신 - requestId: {}", requestId);

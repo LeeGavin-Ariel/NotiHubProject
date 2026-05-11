@@ -10,7 +10,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class NotificationRequestDto {
 
-    private String senderApiKey;
     private NotificationChannel channel;
     private String recipient;
     private String templateCode;

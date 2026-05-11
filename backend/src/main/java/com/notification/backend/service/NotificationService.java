@@ -10,6 +10,7 @@ import com.notification.backend.repository.NotificationTemplateRepository;
 import com.notification.backend.repository.SenderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +28,12 @@ public class NotificationService {
     public void send(NotificationRequestDto dto) {
 
         // 1. Sender 조회
-        Sender sender = senderRepository.findByApiKey(dto.getSenderApiKey())
-            .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 API Key"));
+        String apiKey = (String) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Sender sender = senderRepository.findByApiKey(apiKey)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 API Key"));
 
         // 2. 템플릿 조회
         NotificationTemplate template = templateRepository.findByTemplateCode(dto.getTemplateCode())
