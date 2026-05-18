@@ -1,5 +1,6 @@
 package com.notification.backend.kafka;
 
+import com.notification.backend.domain.NotificationFailureLog;
 import com.notification.backend.domain.NotificationRequest;
 import com.notification.backend.repository.NotificationFailureLogRepository;
 import com.notification.backend.repository.NotificationRequestRepository;
@@ -44,6 +45,8 @@ public class DlqConsumer {
 
             } catch (Exception e) {
                 log.error("[DLQ Consumer] 재시도 실패 - requestId: {}, retryCount: {}", requestId, request.getRetryCount());
+
+                // 실패 로그 DB 저장
                 saveFailureLog(request, e.getMessage());
 
                 // 재시도 실패 시 다시 DLQ로 produce
@@ -53,12 +56,21 @@ public class DlqConsumer {
             // 최대 재시도 횟수 초과 시 FAILED 상태로 변경
             log.error("[DLQ Consumer] 최대 재시도 초과 → FAILED - requestId: {}", requestId);
             request.markAsFailed();
+
+            // 최종 실패 로그 DB 저장
             saveFailureLog(request, "최대 재시도 횟수 초과");
         }
     }
 
     private void saveFailureLog(NotificationRequest request, String errorMessage) {
-        // 실패 로그는 5주차에 구현 예정
-        log.error("[DLQ Consumer] 실패 로그 저장 - requestId: {}, error: {}", request.getId(), errorMessage);
+        // 실패 로그 Entity 생성 후 DB 저장
+        NotificationFailureLog failureLog = NotificationFailureLog.builder()
+                .request(request)
+                .errorMessage(errorMessage)
+                .retryCount(request.getRetryCount())
+                .build();
+
+        failureLogRepository.save(failureLog);
+        log.error("[DLQ Consumer] 실패 로그 저장 완료 - requestId: {}, error: {}", request.getId(), errorMessage);
     }
 }
