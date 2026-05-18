@@ -26,7 +26,7 @@ CSR 결재 시스템에서 알림 발송을 외부 팀 DB 폴링 방식에 의�
 
 ## 아키텍처
 
-\`\`\`
+```
 [알림 요청자]
     ↓ POST /api/notifications (X-API-KEY 인증)
 [Notification API Server] (Spring Boot)
@@ -42,7 +42,7 @@ CSR 결재 시스템에서 알림 발송을 외부 팀 DB 폴링 방식에 의�
 [Kafka] - topic: notification.dlq
     ↓
 [DLQ Consumer] → 최대 3회 재시도 → 실패 로그 DB 저장
-\`\`\`
+```
 
 ## ERD
 
@@ -56,7 +56,7 @@ CSR 결재 시스템에서 알림 발송을 외부 팀 DB 폴링 방식에 의�
 
 ## API 사용 예시
 
-\`\`\`bash
+```bash
 curl -X POST "http://localhost:8080/api/notifications" \
   -H "Content-Type: application/json" \
   -H "X-API-KEY: {api-key}" \
@@ -69,4 +69,4 @@ curl -X POST "http://localhost:8080/api/notifications" \
       "title": "결재요청 알림"
     }
   }'
-\`\`\`
+```
