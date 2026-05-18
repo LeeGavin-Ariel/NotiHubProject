@@ -60,4 +60,20 @@ public class NotificationRequest {
         createdAt = LocalDateTime.now();
         status = "PENDING";
     }
+
+    // 재시도 횟수 증가
+    public void incrementRetryCount() {
+        this.retryCount++;
+    }
+
+    // 발송 성공 상태로 변경
+    public void markAsSent() {
+        this.status = "SENT";
+        this.sentAt = LocalDateTime.now();
+    }
+
+    // 발송 실패 상태로 변경
+    public void markAsFailed() {
+        this.status = "FAILED";
+    }
 }

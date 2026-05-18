@@ -5,6 +5,7 @@ import com.notification.backend.repository.NotificationRequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NotificationConsumer {
 
+    private static final String DLQ_TOPIC = "notification.dlq";
+
     private final NotificationRequestRepository notificationRequestRepository;
     private final NotificationRouter notificationRouter;
+    private final KafkaTemplate<String, Long> kafkaTemplate;
 
     // notification.request 토픽을 구독하는 리스너
     @Transactional
@@ -25,6 +29,13 @@ public class NotificationConsumer {
         NotificationRequest request = notificationRequestRepository.findById(requestId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 요청 - id: " + requestId));
 
-        notificationRouter.route(request);
+        try {
+            notificationRouter.route(request);
+        } catch (Exception e) {
+            // 발송 실패 시 DLQ 토픽으로 requestId 전송
+            // DlqConsumer가 이를 받아서 재시도 처리
+            log.error("[Consumer] 발송 실패 → DLQ로 전송 - requestId: {}", requestId);
+            kafkaTemplate.send(DLQ_TOPIC, requestId.toString(), requestId);
+        }
     }
 }
