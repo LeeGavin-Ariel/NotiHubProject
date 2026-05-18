@@ -2,6 +2,12 @@
 
 > 이메일, 슬랙, 카카오톡 알림을 단일 인터페이스로 추상화한 이벤트 기반 알림 발송 서버
 
+## 개발 배경
+
+CSR 결재 시스템에서 알림 발송을 외부 팀 DB 폴링 방식에 의존했던 경험에서 출발했습니다.
+발송 시점 통제 불가, 채널 확장의 어려움, 실패 처리 불투명이라는 한계를 직접 해결하고자
+이벤트 기반 알림 허브를 설계하고 구현했습니다.
+
 ## 기술 스택
 
 - **Backend**: Java 17, Spring Boot 3, Apache Kafka
@@ -48,20 +54,6 @@
 | notification_success_log | 발송 성공 로그 |
 | notification_failure_log | 발송 실패 로그 |
 
-## 실행 방법
-
-\`\`\`bash
-# 1. 환경변수 설정
-cp .env.example .env
-# .env 파일에 실제 값 입력
-
-# 2. Docker Compose 실행
-docker-compose up -d
-
-# 3. Spring Boot 실행
-./gradlew bootRun
-\`\`\`
-
 ## API 사용 예시
 
 \`\`\`bash
@@ -74,13 +66,7 @@ curl -X POST "http://localhost:8080/api/notifications" \
     "templateCode": "APPROVAL_COMPLETE_EMAIL",
     "variables": {
       "name": "홍길동",
-      "title": "결재요청알림"
+      "title": "결재요청 알림"
     }
   }'
 \`\`\`
-
-## 개발 배경
-
-CSR 결재 시스템에서 알림 발송을 외부 팀 DB 폴링 방식에 의존했던 경험에서 출발했습니다.
-발송 시점 통제 불가, 채널 확장의 어려움, 실패 처리 불투명이라는 한계를 직접 해결하고자
-이벤트 기반 알림 허브를 설계하고 구현했습니다.
